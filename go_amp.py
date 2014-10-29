@@ -18,7 +18,7 @@ SCIPY_LOCAL_SOLVERS   = ['Nelder-Mead', 'Powell', 'L-BFGS-B', 'TNC', 'SLSQP']
 OPENOPT_LOCAL_SOLVERS = ['bobyqa', 'ptn', 'slmvm2', 'ralg', 'mma', 'auglag', 'sqlcp']
 
 
-def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, bounds=None, maxfunevals=None,
+def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, local_dfunc = None, bounds=None, maxfunevals=None,
           totaliter=20, maxiter=5, glbtol=1e-5, eps1=0.02, eps2=0.1, tabulistsize=5,
           tabustrategy='farthest', fmin=-numpy.inf, disp=None):
     """
@@ -32,6 +32,8 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, bounds=None, m
     :param `local`: The local minimization method (e.g. ``"L-BFGS-B"``). It can be one of the available
      `scipy` local solvers or `OpenOpt` solvers.
     :type `local`: string
+    :param `local_dfunc`: A function that calculates the gradient of the objective function
+    :type `local_dfunc`: callable
     :param `bounds`: A list of tuples specifying the lower and upper bound for each independent variable
      [(`xl0`, `xu0`), (`xl1`, `xu1`), ...]
     :type `bounds`: list
@@ -159,7 +161,8 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, bounds=None, m
             options = {'maxiter': max(1, maxfunevals), 'disp': disp}
             if local_opts is not None:
                 options.update(local_opts)
-            res = minimize(objfun, x0, args=args, method=local, bounds=bounds, tol=local_tol, options=options)
+            res = minimize(objfun, x0, args=args, method=local, bounds=bounds, tol=local_tol, options=options,
+                           jac = local_dfunc)
             xf, yf, num_fun = res['x'], res['fun'], res['nfev']
 
         maxfunevals -= num_fun
@@ -221,7 +224,8 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, bounds=None, m
                 if local_opts is not None:
                     options.update(local_opts)
 
-                res = minimize(tunnel, x0, args=tunnel_args, method=local, bounds=bounds, tol=local_tol, options=options)
+                res = minimize(tunnel, x0, args=tunnel_args, method=local, bounds=bounds, tol=local_tol, options=options,
+                               jac = local_dfunc)
                 xf, yf, num_fun = res['x'], res['fun'], res['nfev']
 
             maxfunevals -= num_fun
