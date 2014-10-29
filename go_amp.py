@@ -24,7 +24,7 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, bounds=None, m
     """
     Finds the global minimum of a function using the AMPGO (Adaptive Memory Programming for
     Global Optimization) algorithm. 
-    
+
     :param `objfun`: Function to be optimized, in the form ``f(x, *args)``.
     :type `objfun`: callable
     :param `args`: Additional arguments passed to `objfun`.
@@ -59,7 +59,7 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, bounds=None, m
     :param `disp`: If zero or defaulted, then no output is printed on screen. If a positive number, then status
      messages are printed.
     :type `disp`: integer
- 
+
     :returns: A tuple of 5 elements, in the following order:
 
      1. **best_x** (`array_like`): the estimated position of the global minimum.
@@ -71,7 +71,7 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, bounds=None, m
 
     :rtype: `tuple`
 
-    The detailed implementation of AMPGO is described in the paper 
+    The detailed implementation of AMPGO is described in the paper
     "Adaptive Memory Programming for Constrained Global Optimization" located here:
 
     http://leeds-faculty.colorado.edu/glover/fred%20pubs/416%20-%20AMP%20(TS)%20for%20Constrained%20Global%20Opt%20w%20Lasdon%20et%20al%20.pdf
@@ -155,7 +155,7 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, bounds=None, m
 
             results = problem.solve(local)
             xf, yf, num_fun = results.xf, results.ff, results.evals['f']
-        else:
+        elif local in SCIPY_LOCAL_SOLVERS:
             options = {'maxiter': max(1, maxfunevals), 'disp': disp}
             if local_opts is not None:
                 options.update(local_opts)
@@ -216,7 +216,7 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, bounds=None, m
 
                 results = problem.solve(local)
                 xf, yf, num_fun = results.xf, results.ff, results.evals['f']
-            else:
+            elif local in SCIPY_LOCAL_SOLVERS:
                 options = {'maxiter': max(1, maxfunevals), 'disp': disp}
                 if local_opts is not None:
                     options.update(local_opts)
