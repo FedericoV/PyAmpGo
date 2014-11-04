@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import numpy
+import time
 
 OPENOPT = SCIPY = True
 
@@ -19,11 +20,11 @@ OPENOPT_LOCAL_SOLVERS = ['bobyqa', 'ptn', 'slmvm2', 'ralg', 'mma', 'auglag', 'sq
 
 
 def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, local_dfunc = None, bounds=None, maxfunevals=None,
-          totaliter=20, maxiter=5, glbtol=1e-5, eps1=0.02, eps2=0.1, tabulistsize=5,
+          totaliter=20, maxiter=5, maxtime = numpy.inf, glbtol=1e-5, eps1=0.02, eps2=0.1, tabulistsize=5,
           tabustrategy='farthest', fmin=-numpy.inf, disp=None):
     """
     Finds the global minimum of a function using the AMPGO (Adaptive Memory Programming for
-    Global Optimization) algorithm. 
+    Global Optimization) algorithm.
 
     :param `objfun`: Function to be optimized, in the form ``f(x, *args)``.
     :type `objfun`: callable
@@ -43,6 +44,8 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, local_dfunc = 
     :type `totaliter`: integer
     :param `maxiter`: The maximum number of `Tabu Tunnelling` iterations allowed during each global iteration.
     :type `maxiter`: integer
+    :param `maxtime`: The maximum amount of time spent inside the algorithm
+    :type `maxtime`: float
     :param `glbtol`: The optimization will stop if the absolute difference between the current minimum objective
      function value and the provided global optimum (`fmin`) is less than `glbtol`.
     :type `glbtol`: float
@@ -142,6 +145,8 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, local_dfunc = 
         local_tol = glbtol
     else:
         local_tol = 1e-8
+
+    t0 = time.time()
 
     while 1:
 
@@ -259,6 +264,10 @@ def AMPGO(objfun, x0, args=(), local='L-BFGS-B', local_opts=None, local_dfunc = 
 
         global_iter += 1
         x0 = xf.copy()
+        t1 = time.time()
+
+        if t1-t0 > maxtime:
+            return best_x, best_f, evaluations, 'Maximum Time Elapsed', (all_tunnel, success_tunnel)
 
         if global_iter >= totaliter:
             return best_x, best_f, evaluations, 'Maximum number of global iterations exceeded', (all_tunnel, success_tunnel)
